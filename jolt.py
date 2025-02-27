@@ -66,9 +66,10 @@ def main():
         update = search_movie_updates(movie)
         if update:
             message = f"📢 Movie Update: {movie}\n{update}"
-            send_telegram_message(message)
         else:
-            print(f"ℹ️ No new updates for {movie}.")
+            message = f"ℹ️ No new updates for {movie} yet."
+
+        send_telegram_message(message)
 
 
 if __name__ == "__main__":
