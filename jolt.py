@@ -21,7 +21,7 @@ print(ASCII_ART)  # Display ASCII art at script start
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Your bot token
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")  # Your chat ID or group ID
 
-MOVIES = ["Solo Leveling", "Legend of Vox Machina", "The Witcher"]  # Edit this list
+MOVIES = ["Solo Leveling", "Demon Slayer", "All American", "Sakamoto days", "Final destination" Bloodlines", "Death of a unicorn", "How to train your dragon 4", "Den of Thieves 2: Pantera", "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"]  # Edit this list
 SEARCH_URL = "https://www.google.com/search?q="  # Google search URL
 
 
