@@ -2,7 +2,7 @@ name: Movie Tracker Telegram
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Runs every 1 minute
+    - cron: '0 */6 * * *'  # Runs every 6 hours (at 00:00, 06:00, 12:00, 18:00 UTC)
 
   workflow_dispatch:  # Allows manual trigger
 
@@ -25,4 +25,4 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python jolt.py  # Make sure this matches your script name
+        run: python jolt.py  # Ensure your script is named correctly
