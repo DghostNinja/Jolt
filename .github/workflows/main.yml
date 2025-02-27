@@ -1,8 +1,9 @@
 name: Movie Tracker Telegram
 
 on:
+  workflow_dispatch:  # Allows manual trigger
   schedule:
-    - cron: '0 12 * * *'  # Runs every day at 12 PM UTC
+    - cron: '*/1 * * * *'  # Runs every 1 minute (for testing)
 
 jobs:
   check_movies:
@@ -23,4 +24,4 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python movie_tracker.py
+        run: jolt.py
