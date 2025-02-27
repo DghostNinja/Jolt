@@ -26,19 +26,26 @@ SEARCH_URL = "https://www.google.com/search?q="  # Google search URL
 
 
 def search_movie_updates(movie_title):
-    """Searches the web for new movie releases."""
-    query = f"{movie_title} new season release date"
+    """Searches the web for new movie releases and episode details."""
+    query = f"{movie_title} latest episode release date and title"
     url = SEARCH_URL + query.replace(" ", "+")
-    
+
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
-    
-    # Extract relevant data (Modify if needed)
-    results = soup.find_all("span")  # Adjust selector
+
+    # Extract possible episode details
+    results = soup.find_all("span")  # Adjust selector if needed
+    episodes = []
+
     for result in results:
-        if "season" in result.text.lower() or "release" in result.text.lower():
-            return result.text.strip()
+        text = result.text.strip().lower()
+        if "episode" in text or "season" in text or "release" in text:
+            episodes.append(result.text.strip())
+
+    if episodes:
+        return "\n".join(episodes)
+    
     return None
 
 
@@ -65,7 +72,7 @@ def main():
     for movie in MOVIES:
         update = search_movie_updates(movie)
         if update:
-            message = f"📢 Movie Update: {movie}\n{update}"
+            message = f"📢 Movie Update: {movie}\nLatest Episodes:\n{update}"
         else:
             message = f"ℹ️ No new updates for {movie} yet."
 
