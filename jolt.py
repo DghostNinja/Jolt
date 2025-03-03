@@ -1,6 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 # ASCII Art
 ASCII_ART = r"""
@@ -14,28 +15,34 @@ ASCII_ART = r"""
                                              
                                              by iPsalmy
 """
+print(ASCII_ART)
 
-print(ASCII_ART)  # Display ASCII art at script start
+# Print the current date when script runs
+current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+print(f"📅 Script started on: {current_date}")
 
 # Telegram Bot Configuration
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Your bot token
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")  # Your chat ID or group ID
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")  
 
-MOVIES = ["Solo Leveling", "Demon Slayer", "All American", "Sakamoto days", "Final destination: Bloodlines", "Death of a unicorn", "How to train your dragon 4", "Den of Thieves 2: Pantera", "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"]  # Edit this list
-SEARCH_URL = "https://www.google.com/search?q="  # Google search URL
-
+MOVIES = [
+    "Solo Leveling", "Demon Slayer", "All American", "Sakamoto Days", 
+    "Final Destination: Bloodlines", "Death of a Unicorn", 
+    "How to Train Your Dragon 4", "Den of Thieves 2: Pantera", 
+    "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"
+]
+SEARCH_URL = "https://www.google.com/search?q="  
 
 def search_movie_updates(movie_title):
     """Searches the web for new movie releases and episode details."""
-    query = f"{movie_title} latest episode release date and title"
+    query = f"{movie_title} latest episode title and release date site:imdb.com OR site:rottentomatoes.com"
     url = SEARCH_URL + query.replace(" ", "+")
 
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # Extract possible episode details
-    results = soup.find_all("span")  # Adjust selector if needed
+    results = soup.find_all(["h3", "span", "div"])  # Searches for different tags
     episodes = []
 
     for result in results:
@@ -43,11 +50,7 @@ def search_movie_updates(movie_title):
         if "episode" in text or "season" in text or "release" in text:
             episodes.append(result.text.strip())
 
-    if episodes:
-        return "\n".join(episodes)
-    
-    return None
-
+    return "\n".join(episodes) if episodes else None
 
 def send_telegram_message(message):
     """Sends a notification to Telegram and provides debug output."""
@@ -56,7 +59,7 @@ def send_telegram_message(message):
     
     try:
         response = requests.post(url, json=payload)
-        response_data = response.json()  # Get API response as JSON
+        response_data = response.json()
 
         if response.status_code == 200 and response_data.get("ok"):
             print(f"✅ Message sent successfully: {message}")
@@ -67,17 +70,15 @@ def send_telegram_message(message):
     except Exception as e:
         print(f"⚠️ Error while sending Telegram message: {e}")
 
-
 def main():
     for movie in MOVIES:
         update = search_movie_updates(movie)
         if update:
-            message = f"📢 Movie Update: {movie}\nLatest Episodes:\n{update}"
+            message = f"📢 Movie Update ({current_date}):\n🎬 *{movie}*\n{update}"
         else:
-            message = f"ℹ️ No new updates for {movie} yet."
+            message = f"ℹ️ No new updates for *{movie}* as of {current_date}."
 
         send_telegram_message(message)
-
 
 if __name__ == "__main__":
     main()
