@@ -26,7 +26,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")  
 
 MOVIES = [
-    "Solo Leveling", "Demon Slayer", "All American", "Sakamoto Days", 
+    "Solo Leveling", "Demon Slayer Infinity Castle", "All American", "Sakamoto Days", 
     "Final Destination: Bloodlines", "Death of a Unicorn", 
     "How to Train Your Dragon 4", "Den of Thieves 2: Pantera", 
     "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"
