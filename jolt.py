@@ -27,7 +27,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 MOVIES = [
     "Solo Leveling", "Demon Slayer Infinity Castle", "All American", "Sakamoto Days", 
-    "Final Destination: Bloodlines", "Death of a Unicorn", 
+    "Final Destination: Bloodlines", "Rick and Morty", "Death of a Unicorn", 
     "How to Train Your Dragon 4", "Den of Thieves 2: Pantera", 
     "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"
 ]
