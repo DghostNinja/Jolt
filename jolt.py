@@ -35,7 +35,6 @@ MOVIES = [
 
 SEARCH_URLS = {
     "Google": "https://www.google.com/search?q=",
-    "Nkiri": "https://nkiri.com/?s=",
     "O2TvSeries": "https://o2tvseries.com/search/?q=",
     "AnimePahe": "https://animepahe.ru/search?q="
 }
@@ -48,11 +47,11 @@ def extract_episode_info(text):
     return match.group(0) if match else None
 
 def search_movie_updates(movie_title):
-    """Searches Google, Nkiri, O2TvSeries, and AnimePahe for new episodes with filtering."""
+    """Searches Google, O2TvSeries, and AnimePahe for new episodes with filtering."""
     results = []
 
-    # Google Search (Adding "latest" episode to filter out old results)
-    google_query = f"{movie_title} latest episode release date site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
+    # Google Search (Adding "latest" to filter out old results)
+    google_query = f"{movie_title} latest episode release site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
     google_url = SEARCH_URLS["Google"] + google_query.replace(" ", "+")
     google_response = requests.get(google_url, headers=HEADERS)
     google_soup = BeautifulSoup(google_response.text, "html.parser")
@@ -61,17 +60,8 @@ def search_movie_updates(movie_title):
         text = tag.text.strip()
         if "episode" in text.lower() or "season" in text.lower():
             episode_info = extract_episode_info(text)
-            if episode_info:  # Only add if it contains season/episode info
+            if episode_info:
                 results.append(f"Google: {text}")
-
-    # Nkiri Search
-    nkiri_url = SEARCH_URLS["Nkiri"] + movie_title.replace(" ", "+")
-    nkiri_response = requests.get(nkiri_url, headers=HEADERS)
-    nkiri_soup = BeautifulSoup(nkiri_response.text, "html.parser")
-    for link in nkiri_soup.find_all("a", href=True):
-        episode_info = extract_episode_info(link.text)
-        if episode_info:
-            results.append(f"Nkiri: {episode_info} ➡ {link['href']}")
 
     # O2TvSeries Search
     o2tv_url = SEARCH_URLS["O2TvSeries"] + movie_title.replace(" ", "+")
