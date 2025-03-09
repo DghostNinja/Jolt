@@ -51,7 +51,7 @@ def search_movie_updates(movie_title):
     results = []
 
     # Google Search (Adding "latest" to filter out old results)
-    google_query = f"{movie_title} latest episode release site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
+    google_query = f"{movie_title} latest episode release site:imdb.com OR site:rottentomatoes.com OR site:netflix.com OR site:nkiri.com"
     google_url = SEARCH_URLS["Google"] + google_query.replace(" ", "+")
     google_response = requests.get(google_url, headers=HEADERS)
     google_soup = BeautifulSoup(google_response.text, "html.parser")
