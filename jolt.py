@@ -2,6 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import re
 
 # ASCII Art
 ASCII_ART = r"""
@@ -17,7 +18,7 @@ ASCII_ART = r"""
 """
 print(ASCII_ART)
 
-# Print the current date when script runs
+# Print the current date when the script runs
 current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 print(f"📅 Script started on: {current_date}")
 
@@ -41,44 +42,54 @@ SEARCH_URLS = {
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
+def extract_episode_info(text):
+    """Extract episode number and season info using regex."""
+    match = re.search(r"(season\s*\d+)?\s*(episode\s*\d+)", text, re.IGNORECASE)
+    return match.group(0) if match else None
+
 def search_movie_updates(movie_title):
-    """Searches Google, Nkiri, O2TvSeries, and AnimePahe for new episodes."""
+    """Searches Google, Nkiri, O2TvSeries, and AnimePahe for new episodes with filtering."""
     results = []
 
-    # Google Search
-    google_query = f"{movie_title} latest episode title and release date site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
+    # Google Search (Adding "latest" episode to filter out old results)
+    google_query = f"{movie_title} latest episode release date site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
     google_url = SEARCH_URLS["Google"] + google_query.replace(" ", "+")
     google_response = requests.get(google_url, headers=HEADERS)
     google_soup = BeautifulSoup(google_response.text, "html.parser")
 
     for tag in google_soup.find_all(["h3", "span", "div"]):
         text = tag.text.strip()
-        if "episode" in text.lower() or "season" in text.lower() or "release" in text.lower():
-            results.append(text)
+        if "episode" in text.lower() or "season" in text.lower():
+            episode_info = extract_episode_info(text)
+            if episode_info:  # Only add if it contains season/episode info
+                results.append(f"Google: {text}")
 
     # Nkiri Search
     nkiri_url = SEARCH_URLS["Nkiri"] + movie_title.replace(" ", "+")
     nkiri_response = requests.get(nkiri_url, headers=HEADERS)
     nkiri_soup = BeautifulSoup(nkiri_response.text, "html.parser")
     for link in nkiri_soup.find_all("a", href=True):
-        if "episode" in link.text.lower() or "season" in link.text.lower():
-            results.append(f"Nkiri: {link.text.strip()} ➡ {link['href']}")
+        episode_info = extract_episode_info(link.text)
+        if episode_info:
+            results.append(f"Nkiri: {episode_info} ➡ {link['href']}")
 
     # O2TvSeries Search
     o2tv_url = SEARCH_URLS["O2TvSeries"] + movie_title.replace(" ", "+")
     o2tv_response = requests.get(o2tv_url, headers=HEADERS)
     o2tv_soup = BeautifulSoup(o2tv_response.text, "html.parser")
     for link in o2tv_soup.find_all("a", href=True):
-        if "episode" in link.text.lower() or "season" in link.text.lower():
-            results.append(f"O2TvSeries: {link.text.strip()} ➡ {link['href']}")
+        episode_info = extract_episode_info(link.text)
+        if episode_info:
+            results.append(f"O2TvSeries: {episode_info} ➡ {link['href']}")
 
     # AnimePahe Search
     animepahe_url = SEARCH_URLS["AnimePahe"] + movie_title.replace(" ", "+")
     animepahe_response = requests.get(animepahe_url, headers=HEADERS)
     animepahe_soup = BeautifulSoup(animepahe_response.text, "html.parser")
     for link in animepahe_soup.find_all("a", href=True):
-        if "episode" in link.text.lower() or "season" in link.text.lower():
-            results.append(f"AnimePahe: {link.text.strip()} ➡ {link['href']}")
+        episode_info = extract_episode_info(link.text)
+        if episode_info:
+            results.append(f"AnimePahe: {episode_info} ➡ {link['href']}")
 
     return "\n".join(results) if results else None
 
