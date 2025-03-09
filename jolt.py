@@ -31,26 +31,56 @@ MOVIES = [
     "How to Train Your Dragon 4", "Den of Thieves 2: Pantera", 
     "The Old Guard 2", "The Legend of Vox Machina", "The Witcher"
 ]
-SEARCH_URL = "https://www.google.com/search?q="  
+
+SEARCH_URLS = {
+    "Google": "https://www.google.com/search?q=",
+    "Nkiri": "https://nkiri.com/?s=",
+    "O2TvSeries": "https://o2tvseries.com/search/?q=",
+    "AnimePahe": "https://animepahe.ru/search?q="
+}
+
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def search_movie_updates(movie_title):
-    """Searches the web for new movie releases and episode details."""
-    query = f"{movie_title} latest episode title and release date site:imdb.com OR site:rottentomatoes.com"
-    url = SEARCH_URL + query.replace(" ", "+")
+    """Searches Google, Nkiri, O2TvSeries, and AnimePahe for new episodes."""
+    results = []
 
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    # Google Search
+    google_query = f"{movie_title} latest episode title and release date site:imdb.com OR site:rottentomatoes.com OR site:netflix.com"
+    google_url = SEARCH_URLS["Google"] + google_query.replace(" ", "+")
+    google_response = requests.get(google_url, headers=HEADERS)
+    google_soup = BeautifulSoup(google_response.text, "html.parser")
 
-    results = soup.find_all(["h3", "span", "div"])  # Searches for different tags
-    episodes = []
+    for tag in google_soup.find_all(["h3", "span", "div"]):
+        text = tag.text.strip()
+        if "episode" in text.lower() or "season" in text.lower() or "release" in text.lower():
+            results.append(text)
 
-    for result in results:
-        text = result.text.strip().lower()
-        if "episode" in text or "season" in text or "release" in text:
-            episodes.append(result.text.strip())
+    # Nkiri Search
+    nkiri_url = SEARCH_URLS["Nkiri"] + movie_title.replace(" ", "+")
+    nkiri_response = requests.get(nkiri_url, headers=HEADERS)
+    nkiri_soup = BeautifulSoup(nkiri_response.text, "html.parser")
+    for link in nkiri_soup.find_all("a", href=True):
+        if "episode" in link.text.lower() or "season" in link.text.lower():
+            results.append(f"Nkiri: {link.text.strip()} ➡ {link['href']}")
 
-    return "\n".join(episodes) if episodes else None
+    # O2TvSeries Search
+    o2tv_url = SEARCH_URLS["O2TvSeries"] + movie_title.replace(" ", "+")
+    o2tv_response = requests.get(o2tv_url, headers=HEADERS)
+    o2tv_soup = BeautifulSoup(o2tv_response.text, "html.parser")
+    for link in o2tv_soup.find_all("a", href=True):
+        if "episode" in link.text.lower() or "season" in link.text.lower():
+            results.append(f"O2TvSeries: {link.text.strip()} ➡ {link['href']}")
+
+    # AnimePahe Search
+    animepahe_url = SEARCH_URLS["AnimePahe"] + movie_title.replace(" ", "+")
+    animepahe_response = requests.get(animepahe_url, headers=HEADERS)
+    animepahe_soup = BeautifulSoup(animepahe_response.text, "html.parser")
+    for link in animepahe_soup.find_all("a", href=True):
+        if "episode" in link.text.lower() or "season" in link.text.lower():
+            results.append(f"AnimePahe: {link.text.strip()} ➡ {link['href']}")
+
+    return "\n".join(results) if results else None
 
 def send_telegram_message(message):
     """Sends a notification to Telegram and provides debug output."""
